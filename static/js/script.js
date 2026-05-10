@@ -136,9 +136,9 @@ async function loadDashboard() {
 function updateDashboardMetrics(budgetData) {
     // Format currency values
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'INR'
         }).format(value);
     };
     
@@ -176,7 +176,7 @@ function displayBudgetAlerts(budgetData) {
         const alert = createAlert(
             'danger',
             '❌ Budget Exceeded',
-            `Your spending has exceeded your monthly budget by $${(budgetData.total_spent - budgetData.monthly_limit).toFixed(2)}`
+            `Your spending has exceeded your monthly budget by ₹${(budgetData.total_spent - budgetData.monthly_limit).toFixed(2)}`
         );
         alertsContainer.appendChild(alert);
     } else if (budgetData.status === 'warning') {
@@ -190,7 +190,7 @@ function displayBudgetAlerts(budgetData) {
         const alert = createAlert(
             'success',
             '✓ On Budget',
-            `You have $${budgetData.remaining.toFixed(2)} remaining in your budget for this month.`
+            `You have ₹${budgetData.remaining.toFixed(2)} remaining in your budget for this month.`
         );
         alertsContainer.appendChild(alert);
     }
@@ -303,7 +303,7 @@ function updatePieChart(pieData) {
                     callbacks: {
                         label: function(context) {
                             const label = context.label || '';
-                            const value = '$' + context.parsed.toFixed(2);
+                            const value = '₹' + context.parsed.toFixed(2);
                             return label + ': ' + value;
                         }
                     }
@@ -350,7 +350,7 @@ function updateBarChart(barData) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return '$' + context.parsed.y.toFixed(2);
+                            return '₹' + context.parsed.y.toFixed(2);
                         }
                     }
                 }
@@ -360,7 +360,7 @@ function updateBarChart(barData) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toFixed(0);
+                            return '₹' + value.toFixed(0);
                         }
                     }
                 }
@@ -413,7 +413,7 @@ function updateLineChart(lineData) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return '$' + context.parsed.y.toFixed(2);
+                            return '₹' + context.parsed.y.toFixed(2);
                         }
                     }
                 }
@@ -423,7 +423,7 @@ function updateLineChart(lineData) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toFixed(0);
+                            return '₹' + value.toFixed(0);
                         }
                     }
                 }
@@ -593,7 +593,7 @@ function displayExpenses(expenses) {
             <td>${formatDate(expense.date)}</td>
             <td>${emoji} ${expense.category}</td>
             <td>${expense.description}</td>
-            <td class="expense-amount">$${parseFloat(expense.amount).toFixed(2)}</td>
+            <td class="expense-amount">₹${parseFloat(expense.amount).toFixed(2)}</td>
             <td>
                 <div class="table-actions">
                     <button class="btn btn-sm btn-edit" onclick="editExpense(${expense.id})">Edit</button>
@@ -715,11 +715,11 @@ function displayCategorySummary(data) {
         categoryDiv.innerHTML = `
             <div class="category-name">${cat.category}</div>
             <div class="category-info">
-                <span>Total: $${cat.total}</span>
+                <span>Total: ₹${cat.total}</span>
                 <span>${cat.count} expenses</span>
             </div>
             <div class="category-info" style="margin-top: 0.5rem;">
-                <span>Avg: $${cat.average}</span>
+                <span>Avg: ₹${cat.average}</span>
             </div>
         `;
         container.appendChild(categoryDiv);
@@ -746,7 +746,7 @@ function displayTrendsSummary(data) {
         html += `
             <tr>
                 <td>${formatDate(expense.date)}</td>
-                <td>$${parseFloat(expense.amount).toFixed(2)}</td>
+                <td>₹${parseFloat(expense.amount).toFixed(2)}</td>
             </tr>
         `;
     });
@@ -812,7 +812,7 @@ function exportData() {
                     data.data.forEach(expense => {
                         const amount = parseFloat(expense.amount).toFixed(2);
                         const description = (expense.description || '').replace(/"/g, '""');
-                        csv += `"${expense.date}","${expense.category}","${description}","$${amount}"\n`;
+                        csv += `"${expense.date}","${expense.category}","${description}","₹${amount}"\n`;
                     });
                     
                     // Create blob and download
