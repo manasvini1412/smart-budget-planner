@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Budget Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>💰 Budget Planner</h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">📊 Dashboard</a></li>
+                    <li><a href="#expenses" class="nav-link" onclick="showSection('expenses')">💸 Expenses</a></li>
+                    <li><a href="#analytics" class="nav-link" onclick="showSection('analytics')">📈 Analytics</a></li>
+                    <li><a href="#settings" class="nav-link" onclick="showSection('settings')">⚙️ Settings</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Smart Budget Planner v1.0</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <header class="top-bar">
+                <div class="header-left">
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <button class="btn-refresh" onclick="loadDashboard()">🔄 Refresh</button>
+                </div>
+            </header>
+
+            <!-- DASHBOARD SECTION -->
+            <section id="dashboard" class="section active">
+                <!-- DASHBOARD ALERTS -->
+                <div id="alerts-container" class="alerts-container">
+                    <!-- Alerts will be inserted here -->
+                </div>
+
+                <!-- KEY METRICS -->
+                <div class="metrics-grid">
+                    <!-- Total Budget Card -->
+                    <div class="metric-card budget-card">
+                        <div class="metric-header">
+                            <h3>Monthly Budget</h3>
+                            <span class="metric-icon">💵</span>
+                        </div>
+                        <div class="metric-value" id="metric-budget">$5,000.00</div>
+                        <div class="metric-label">Total Budget Limit</div>
+                    </div>
+
+                    <!-- Total Spent Card -->
+                    <div class="metric-card spent-card">
+                        <div class="metric-header">
+                            <h3>Total Spent</h3>
+                            <span class="metric-icon">📉</span>
+                        </div>
+                        <div class="metric-value" id="metric-spent">$0.00</div>
+                        <div class="metric-label">This Month</div>
+                    </div>
+
+                    <!-- Remaining Card -->
+                    <div class="metric-card remaining-card">
+                        <div class="metric-header">
+                            <h3>Remaining</h3>
+                            <span class="metric-icon">✨</span>
+                        </div>
+                        <div class="metric-value" id="metric-remaining">$5,000.00</div>
+                        <div class="metric-label">Available to Spend</div>
+                    </div>
+
+                    <!-- Budget Progress Card -->
+                    <div class="metric-card progress-card">
+                        <div class="metric-header">
+                            <h3>Budget Used</h3>
+                            <span class="metric-icon">📊</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="metric-label" id="metric-percentage">0% Used</div>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW -->
+                <div class="charts-grid">
+                    <!-- Pie Chart -->
+                    <div class="chart-container">
+                        <h3>Spending by Category</h3>
+                        <canvas id="pieChart"></canvas>
+                    </div>
+
+                    <!-- Bar Chart -->
+                    <div class="chart-container">
+                        <h3>Last 7 Days Spending</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Line Chart -->
+                <div class="chart-container full-width">
+                    <h3>30-Day Spending Trend</h3>
+                    <canvas id="lineChart"></canvas>
+                </div>
+
+                <!-- INSIGHTS SECTION -->
+                <div class="insights-section">
+                    <h3>💡 Smart Insights</h3>
+                    <div id="insights-container" class="insights-container">
+                        <!-- Insights will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- EXPENSES SECTION -->
+            <section id="expenses" class="section">
+                <div class="expenses-header">
+                    <h2>Manage Expenses</h2>
+                    <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
+                </div>
+
+                <!-- ADD/EDIT EXPENSE FORM -->
+                <div id="expense-form-container" class="form-container hidden">
+                    <div class="form-card">
+                        <h3 id="form-title">Add New Expense</h3>
+                        <form id="expense-form" onsubmit="handleExpenseSubmit(event)">
+                            <div class="form-group">
+                                <label for="expense-amount">Amount *</label>
+                                <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expense-category">Category *</label>
+                                <select id="expense-category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Food">🍔 Food & Dining</option>
+                                    <option value="Transportation">🚗 Transportation</option>
+                                    <option value="Entertainment">🎬 Entertainment</option>
+                                    <option value="Shopping">🛍️ Shopping</option>
+                                    <option value="Utilities">⚡ Utilities</option>
+                                    <option value="Healthcare">⚕️ Healthcare</option>
+                                    <option value="Education">📚 Education</option>
+                                    <option value="Other">📌 Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expense-description">Description</label>
+                                <input type="text" id="expense-description" placeholder="Optional description">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expense-date">Date *</label>
+                                <input type="date" id="expense-date" required>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save Expense</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeExpenseForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- EXPENSES TABLE -->
+                <div class="table-container">
+                    <table id="expenses-table" class="expenses-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenses-tbody">
+                            <!-- Expenses will be inserted here -->
+                        </tbody>
+                    </table>
+                    <div id="empty-expenses-message" class="empty-message">
+                        No expenses yet. Add one to get started!
+                    </div>
+                </div>
+            </section>
+
+            <!-- ANALYTICS SECTION -->
+            <section id="analytics" class="section">
+                <h2>Spending Analytics</h2>
+
+                <!-- CATEGORY SUMMARY -->
+                <div class="analytics-card">
+                    <h3>📊 Category-wise Summary</h3>
+                    <div id="category-summary" class="category-summary">
+                        <!-- Category data will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- SPENDING TRENDS -->
+                <div class="analytics-card">
+                    <h3>📈 Spending Trends</h3>
+                    <div id="trends-summary" class="trends-summary">
+                        <!-- Trends data will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS SECTION -->
+            <section id="settings" class="section">
+                <h2>Budget Settings</h2>
+
+                <!-- BUDGET SETTINGS -->
+                <div class="settings-card">
+                    <h3>⚙️ Monthly Budget</h3>
+                    <div class="settings-content">
+                        <p>Set your monthly budget limit to track your spending:</p>
+                        <div class="budget-input-group">
+                            <label for="budget-input">Monthly Budget Limit</label>
+                            <div class="input-wrapper">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="budget-input" placeholder="5000" step="0.01" min="0">
+                            </div>
+                            <button class="btn btn-primary" onclick="updateBudget()">Update Budget</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUDGET ALERTS INFO -->
+                <div class="info-card">
+                    <h3>📢 Budget Alert Levels</h3>
+                    <div class="alert-levels">
+                        <div class="alert-level safe">
+                            <span class="level-badge">SAFE</span>
+                            <span class="level-text">0-79% of budget used</span>
+                        </div>
+                        <div class="alert-level warning">
+                            <span class="level-badge">⚠️ WARNING</span>
+                            <span class="level-text">80-99% of budget used</span>
+                        </div>
+                        <div class="alert-level exceeded">
+                            <span class="level-badge">❌ EXCEEDED</span>
+                            <span class="level-text">100%+ of budget used</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DATA MANAGEMENT -->
+                <div class="settings-card">
+                    <h3>🗑️ Data Management</h3>
+                    <div class="settings-content">
+                        <p>Warning: These actions cannot be undone!</p>
+                        <button class="btn btn-danger" onclick="exportData()">📥 Export Data</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SUCCESS/ERROR TOAST NOTIFICATIONS -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
